@@ -16,46 +16,44 @@ function App() {
 
    const navigate = useNavigate();
    const [access, setAccess] = useState(false);
-   /* const EMAIL = "a@a.com";
-     const PASSWORD = "1234567";
 
-    function login(userData) {
-      if (userData.email === EMAIL && userData.password === PASSWORD) {
-         setAccess(true);
-         navigate("/home");
-      }
-   } */
-   function login(userData) {
-      const { email, password } = userData;
+   const login = async (userData) => {
       const URL = "http://localhost:3001/rickandmorty/login/";
-      axios(URL + `?email=${email}&password=${password}`).then(({ data }) => {
+      try {
+         const { email, password } = userData;
+         const { data } = await axios(
+            URL + `?email=${email}&password=${password}`
+         );
          const { access } = data;
          setAccess(access);
          access && navigate("/home");
-      });
-   }
+      } catch (error) {
+         console.log(error.message);
+      }
+   };
    useEffect(() => {
       !access && navigate("/");
    }, [access]);
 
-   function onSearch(id) {
-      if (characters.find((char) => char.id === Number(id))) {
-         return window.alert("Ya puedes ver ese personaje.");
+   const onSearch = async (id) => {
+      if (characters?.find((character) => character.id === Number(id))) {
+         return window.alert(`El personaje ${id} ya está en pantalla`);
       }
-      axios(`https://rickandmortyapi.com/api/character/${id}`)
-         .then(({ data }) => {
-            if (data.name) {
-               setCharacters((oldChars) => [...oldChars, data]);
-            }
-         })
-         .catch((error) => {
-            window.alert("¡No hay personajes con este ID!");
-         });
-   }
-   function onClose(id) {
+      try {
+         const { data } = await axios(
+            `https://rickandmortyapi.com/api/character/${id}`
+         );
+         if (data.name) {
+            setCharacters((oldChars) => [...oldChars, data]);
+         }
+      } catch (error) {
+         alert("¡No hay personajes con este ID!");
+      }
+   };
+   const onClose = (id) => {
       let arrayFiltered = characters.filter((character) => character.id !== id);
       setCharacters(arrayFiltered);
-   }
+   };
 
    return (
       <div className="App">
